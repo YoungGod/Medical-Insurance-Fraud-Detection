@@ -1,0 +1,102 @@
+﻿精准社保问题再思考：
+    之前在思考是否某个uer存在欺诈行为时，是通过构建整个年度中其使用社保的统计行为来构建特征。
+    如果不考虑时间，其每一次交易的行为是否也能揭示一些信息？
+    也就是说，把这些单次的交易行为也可以作为样本训练？
+    在单次交易上，欺诈与非欺诈在统计上是否有区别？以判断每一笔交易？
+    在一年中，欺诈数量与时间的关系？
+    
+    也就是说，我们换一个角度：从每一笔交易入手来判断其是否为欺诈。
+    之前，我们的角度：从整个时间跨度上，所有交易入手，来判断其是否欺诈。
+    后者，其实后者是前者的一种综合，从raw特征抽取构建的concrete特征。
+
+    这些raw特征间是存在某种关联或者结构的，其综合构成了其是否为存在欺诈行为。
+
+    从raw特征这个角度来看，该问题也类似于图像二分类问题（如判别苹果，梨子）：
+    图像：raw特征，像素点及其灰度值
+    社保：raw特征，每一笔交易，及其金额
+    raw特征间是存在某种结构的，这种综合构成苹果和梨子，类比社保欺诈非欺诈。
+
+    我们往往很难根据一个raw特征（如一次交易）来判断某个user是否欺诈（可以分析一下），而通常是根据raw特征的累积，其构成了一些潜在的结构、模式，而欺诈和非欺诈的结构和模式会存在差别。
+    竞赛中，我对这些潜在的结构或者说模式的假设有：统计规律（模式），序列模式（如去医院的间隔等）。
+    是否还有其他模式？
+    是否可以采用深度学习的方式，或无监督学习的方法自动发现一些pattern？？？
+
+		148种						52种
+1. disease_unknown				service_unknown
+2. disease_unknown_known		service_type_46
+3. disease_type_48				service_type_35
+4. disease_type_148				service_type_37
+5. disease_type_63				service_type_48
+6. disease_type_32				service_type_26
+7. disease_type_102				service_unknown_known
+8. disease_type_41				service_type_22
+9. disease_type_137				service_type_38
+10.disease_type_106				service_type_42
+11.disease_type_13				service_type_17
+12.disease_type_140				service_type_34
+13.disease_type_119				service_type_23   * 0.001024
+
+14.disease_type_138				service_type_24   * 0.00095
+15.disease_type_112
+16.disease_type_9
+17.disease_type_113
+18.disease_type_114  * 0.00101  
+19.disease_type_8    * 0.00097
+
+20.disease_type_116  * 0.00094
+
+     84种							78种
+1. trans_hid_180				to_hid_180
+2. trans_hid_98					to_hid_98
+3. trans_hid_196				to_hid_196
+4. trans_hid_194				to_hid_194
+5. trans_hid_587				to_hid_567
+6. trans_hid_567				to_hid_587
+7. trans_hid_190				to_hid_190
+8. trans_hid_195				to_hid_188
+9. trans_hid_188				to_hid_188   * 0.000106
+
+10.trans_hid_183				to_hid_195  * 0.000901
+11.trans_hid_145 * 0.00102      to_hid_125  * 0.0009
+
+12.trans_hid_149 * 0.00085      to_hid_183  * 0.00086
+								to_hid_149	* 0.00085
+								to_hid_145  * 0.00084
+								
+								
+model：base+去医院稀疏
+threshold：(0.2136+0.2465+0.2779)/3 = 0.246
+
+model：base
+threhold：(0.2735+0.2246+0.2261)/3 = 0.2414
+
+model: all
+5,0.8,0.5   auc
+200,0.1 threhold_1: (0.2116+0.2236+0.2407)/3=  0.2253
+1000,0.02 threhold_2: (0.255+0.2404+0.2674)/3=  0.25426 (good)
+2000,0.01 threhold_3: (0.2287+0.2265+0.258)/3= 0.23773 (good)
+
+model: all
+5,0.8,0.5   logit
+200,0.1 threshold_1:  (0.207+0.195+0.245)/3 = 
+1000,0.02 threhold_2: (0.2518+0.2284+0.2595)/3=  0.2466 (good)
+2000,0.01 threhold_3: (0.2363+0.2265+0.2679)/3= 0.2336 (good)
+
+model: all
+5,0.8,0.5   error
+200,0.1 threshold_1:  (0.207+0.195+0.245)/3 = 
+1000,0.02 threhold_2: (0.2674+0.2285+0.2613)/3=  0.2466 (good)
+2000,0.01 threhold_3: (0.2287+0.2265+0.2558)/3= 0.237 (good)
+
+
+select 
+	pid,
+    get_json_object(prediction_detail, '$.1') as score_auc1
+from ${t1};
+
+
+model feature selected：
+100，0.1，0.8，0.5
+model-1（200，0.05）threshold：(0.24569+0.245+0.222)/3 = 0.23756
+model-2（1000，0.01）threshold:(0.2079+0.2494+0.2252)/3 = 0.22750
+model-3（2000，0.005）threshold:(0.2144+0.2432+0.2304)/3 = 0.22933

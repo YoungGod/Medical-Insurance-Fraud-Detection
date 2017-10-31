@@ -1,0 +1,46 @@
+# 离线GBDT（python中）参数调节方法
+参数默认：
+min_samples_split = 500 : ~0.5-1% of total values. Since this is imbalanced class problem, we'll take small value
+min_samples_leaf = 50 : Just using for preventing overfitting. will be tuned later.
+max_depth = 8 : since high number of observations and predictors, choose relatively high value
+max_features = 'sqrt' : general thumbrule to start with
+subsample = 0.8 : typically used value (will be tuned later)
+调节步骤：
+step 1：在相对较高的学习率下，确定最优树的数量
+
+step 2：调节树的最大深度，max_depth；
+		调节最小样本分裂，min_samples_split;
+
+step 3：调节叶节点最小样本数量，min_samples_leaf
+
+step 4：调节最大特征，max_features
+
+step 5：调节最佳样本数，subsamples
+
+step 5：减小学习率，增加树的数量，成比例减小增加1/n
+
+
+# 天池平台GBDT参数调节
+参数默认：
+树的数目：范围[1,10000]，默认500					-- estimators
+学习速率：范围(0,1]，默认0.05						-- learning_rate
+
+最大叶子数: 必须为整数，范围[2,1000]，默认32
+树最大深度：必须为整数，范围[1,11]，,默认为11		-- max_depth
+
+叶节点最少样本数：必须为整数，范围[100,1000]，默认500		-- min_samples_leaf
+训练采集样本比例: 范围(0,1]，默认0.6				-- subsample
+训练采集特征比例：范围（0,1]，默认0.6				-- max_features
+测试数据比例：范围[0,1)，默认0.0
+随机数种子：必须为整数，范围[0,10]，默认0
+特征分裂的最大数量：范围[1,1000]，默认500			-- min_samples_split  ??
+
+# 天池平台PS-SMART参数调节（支持大规模特征）
+treeCount	树数量，默认为1
+maxDepth	树最大深度	一棵树的最大深度，建议取5（即最多32个叶子节点）	正整数，[1,20]	可选，默认为5
+sampleRatio	数据采样比例	构建每棵树时只采样一部分数据来学习，构建弱学习器，加快训练	(0,1]	可选，默认为1.0，不采样
+featureRatio	特征采样比例	构建每棵树时只采样一部分特征来学习，构建弱学习器，加快训练	(0,1]	可选，默认为1.0，不采样
+l1	L1惩罚项系数	控制叶子节点个数，该项越大，叶子节点数越少。过拟合时可以加大该项。	非负实数	可选，默认为0
+l2	L2惩罚项系数	控制叶子节点大小，该项越大，叶子节点规模分布越均匀。过拟合时可以加大该项。	非负实数	可选，默认为1.0
+shrinkage	学习速率		(0,1]	可选，默认为0.3
+
